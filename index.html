@@ -12,10 +12,14 @@ body {
     font-family: 'Courier New', monospace;
     background: radial-gradient(circle at center, #020617, #000);
     color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
 }
 
-/* estrelas (não bloqueia clique) */
+/* estrelas */
 .stars {
     position: fixed;
     width: 200%;
@@ -24,7 +28,6 @@ body {
     animation: moveStars 60s linear infinite;
     opacity: 0.25;
     pointer-events: none;
-    z-index: 0;
 }
 
 @keyframes moveStars {
@@ -34,10 +37,6 @@ body {
 
 /* carta */
 .carta {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     width: 80%;
     max-width: 300px;
     height: 160px;
@@ -47,59 +46,78 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    text-align: center;
-    cursor: pointer;
     box-shadow: 0 15px 30px rgba(0,0,0,0.6);
-    z-index: 10;
+    margin-bottom: 20px;
 }
 
-/* animação abrir */
-.abrindo {
-    animation: abrir 1.2s forwards;
-}
-
-@keyframes abrir {
-    to { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-}
-
-/* conteúdo */
-.conteudo {
-    display: none;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 90%;
-    max-width: 420px;
-    background: rgba(2,6,23,0.9);
-    padding: 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    z-index: 20;
-}
-
-#texto {
-    white-space: pre-wrap;
-    line-height: 1.6;
-    font-size: 14px;
-}
-
-/* botão */
-.botao {
-    margin-top: 20px;
-    padding: 12px;
+/* botão abrir com brilho */
+.abrir-btn {
+    position: relative;
+    padding: 12px 25px;
     border: none;
     border-radius: 25px;
     background: #38bdf8;
     color: #020617;
     font-weight: bold;
     cursor: pointer;
+    overflow: hidden;
+}
+
+.abrir-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
+    transition: 0.5s;
+}
+
+.abrir-btn:hover::after {
+    left: 100%;
+}
+
+/* conteúdo */
+.conteudo {
+    display: none;
+    opacity: 0;
+    transform: translateY(20px);
+    width: 90%;
+    max-width: 420px;
+    background: rgba(2,6,23,0.95);
+    padding: 20px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    transition: 1s;
+}
+
+.conteudo.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#texto {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+/* botão final */
+.botao {
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 25px;
+    border: none;
+    background: #38bdf8;
+    color: #020617;
+    font-weight: bold;
     display: none;
     width: 100%;
 }
 
-/* fade final */
+/* fade */
 .fade {
     position: fixed;
     width: 100%;
@@ -107,7 +125,6 @@ body {
     background: black;
     opacity: 0;
     transition: 2s;
-    z-index: 50;
 }
 </style>
 </head>
@@ -116,7 +133,9 @@ body {
 
 <div class="stars"></div>
 
-<div class="carta" id="carta">Abrir Carta 💌</div>
+<div class="carta">💌 Carta Especial</div>
+
+<button class="abrir-btn" id="abrirBtn">Abrir Carta</button>
 
 <div class="conteudo" id="conteudo">
     <div id="texto"></div>
@@ -125,36 +144,63 @@ body {
 
 <div class="fade" id="fade"></div>
 
+<!-- música principal -->
 <audio id="musica" src="Ainda Flui.mp3"></audio>
 
+<!-- som de abrir carta (opcional, pode trocar depois) -->
+<audio id="somAbrir" src="https://www.soundjay.com/misc/sounds/page-flip-01a.mp3"></audio>
+
 <script>
-const carta = document.getElementById("carta");
+const abrirBtn = document.getElementById("abrirBtn");
 const conteudo = document.getElementById("conteudo");
 const textoEl = document.getElementById("texto");
 const musica = document.getElementById("musica");
 const botao = document.getElementById("botao");
 const fade = document.getElementById("fade");
+const somAbrir = document.getElementById("somAbrir");
 
 const mensagem = `Em poucos dias, a gente criou algo raro — e o mais bonito é sentir que isso ainda tá só começando.
 Com muito carinho, P.S: fica até a música acabar`;
 
-carta.addEventListener("click", () => {
+abrirBtn.addEventListener("click", () => {
+
+    // vibração (se suportar)
+    if (navigator.vibrate) navigator.vibrate(50);
+
     let senha = prompt("Digite a senha:");
 
     if (senha === "Aquariana") {
-        carta.classList.add("abrindo");
+
+        abrirBtn.style.display = "none";
+        document.querySelector(".carta").style.display = "none";
+
+        somAbrir.play();
 
         setTimeout(() => {
-            carta.style.display = "none";
-            conteudo.style.display = "block";
-
-            musica.play();
+            conteudo.classList.add("show");
+            tocarMusica();
             digitar(mensagem);
-        }, 1200);
+        }, 500);
+
     } else {
         alert("Senha incorreta 💔");
     }
 });
+
+function tocarMusica() {
+    musica.volume = 0;
+    musica.play();
+
+    let vol = 0;
+    let fadeIn = setInterval(() => {
+        if (vol < 1) {
+            vol += 0.05;
+            musica.volume = vol;
+        } else {
+            clearInterval(fadeIn);
+        }
+    }, 200);
+}
 
 function digitar(texto) {
     let i = 0;
@@ -163,7 +209,11 @@ function digitar(texto) {
         if (i < texto.length) {
             textoEl.innerHTML += texto[i];
             i++;
-            setTimeout(escrever, 50);
+
+            let delay = 40;
+            if (texto[i] === "." || texto[i] === ",") delay = 200;
+
+            setTimeout(escrever, delay);
         } else {
             botao.style.display = "block";
         }
