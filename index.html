@@ -3,28 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Carta Especial</title>
 
 <style>
 body {
     margin: 0;
     height: 100vh;
-    overflow: hidden;
     font-family: 'Courier New', monospace;
     background: radial-gradient(circle at center, #020617, #000);
     color: white;
+    overflow: hidden;
 }
 
 /* estrelas (não bloqueia clique) */
 .stars {
-    position: absolute;
+    position: fixed;
     width: 200%;
     height: 200%;
     background: url("https://www.transparenttextures.com/patterns/stardust.png");
     animation: moveStars 60s linear infinite;
     opacity: 0.25;
     pointer-events: none;
+    z-index: 0;
 }
 
 @keyframes moveStars {
@@ -32,22 +32,7 @@ body {
     to { transform: translate(-500px,-500px); }
 }
 
-/* corações */
-.heart {
-    position: absolute;
-    color: #38bdf8;
-    animation: floatUp 6s linear infinite;
-    opacity: 0.3;
-    pointer-events: none;
-}
-
-@keyframes floatUp {
-    0% { transform: translateY(100vh); opacity: 0; }
-    50% { opacity: 0.4; }
-    100% { transform: translateY(-10vh); opacity: 0; }
-}
-
-/* carta RESPONSIVA */
+/* carta */
 .carta {
     position: absolute;
     top: 50%;
@@ -66,7 +51,6 @@ body {
     cursor: pointer;
     box-shadow: 0 15px 30px rgba(0,0,0,0.6);
     z-index: 10;
-    padding: 10px;
 }
 
 /* animação abrir */
@@ -78,7 +62,7 @@ body {
     to { transform: translate(-50%, -50%) scale(2); opacity: 0; }
 }
 
-/* conteúdo RESPONSIVO */
+/* conteúdo */
 .conteudo {
     display: none;
     position: absolute;
@@ -101,23 +85,10 @@ body {
     font-size: 14px;
 }
 
-/* cursor */
-.cursor {
-    display: inline-block;
-    width: 6px;
-    background: white;
-    margin-left: 3px;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    50% { opacity: 0; }
-}
-
 /* botão */
 .botao {
     margin-top: 20px;
-    padding: 12px 20px;
+    padding: 12px;
     border: none;
     border-radius: 25px;
     background: #38bdf8;
@@ -125,19 +96,12 @@ body {
     font-weight: bold;
     cursor: pointer;
     display: none;
-    animation: pulse 2s infinite;
     width: 100%;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
 }
 
 /* fade final */
 .fade {
-    position: absolute;
+    position: fixed;
     width: 100%;
     height: 100%;
     background: black;
@@ -152,13 +116,10 @@ body {
 
 <div class="stars"></div>
 
-<div class="carta" id="carta">
-    Abrir Carta 💌
-</div>
+<div class="carta" id="carta">Abrir Carta 💌</div>
 
 <div class="conteudo" id="conteudo">
     <div id="texto"></div>
-    <span class="cursor"></span>
     <button class="botao" id="botao">Quero continuar isso com você</button>
 </div>
 
@@ -177,7 +138,7 @@ const fade = document.getElementById("fade");
 const mensagem = `Em poucos dias, a gente criou algo raro — e o mais bonito é sentir que isso ainda tá só começando.
 Com muito carinho, P.S: fica até a música acabar`;
 
-function abrirCarta() {
+carta.addEventListener("click", () => {
     let senha = prompt("Digite a senha:");
 
     if (senha === "Aquariana") {
@@ -187,33 +148,13 @@ function abrirCarta() {
             carta.style.display = "none";
             conteudo.style.display = "block";
 
-            tocarMusica();
+            musica.play();
             digitar(mensagem);
-            gerarCoracoes();
         }, 1200);
     } else {
         alert("Senha incorreta 💔");
     }
-}
-
-/* suporte toque + clique */
-carta.addEventListener("click", abrirCarta);
-carta.addEventListener("touchstart", abrirCarta);
-
-function tocarMusica() {
-    musica.volume = 0;
-    musica.play();
-
-    let vol = 0;
-    let fadeIn = setInterval(() => {
-        if (vol < 1) {
-            vol += 0.05;
-            musica.volume = vol;
-        } else {
-            clearInterval(fadeIn);
-        }
-    }, 200);
-}
+});
 
 function digitar(texto) {
     let i = 0;
@@ -222,11 +163,7 @@ function digitar(texto) {
         if (i < texto.length) {
             textoEl.innerHTML += texto[i];
             i++;
-
-            let delay = 40;
-            if (texto[i] === "." || texto[i] === ",") delay = 200;
-
-            setTimeout(escrever, delay);
+            setTimeout(escrever, 50);
         } else {
             botao.style.display = "block";
         }
@@ -235,26 +172,13 @@ function digitar(texto) {
     escrever();
 }
 
-function gerarCoracoes() {
-    setInterval(() => {
-        let heart = document.createElement("div");
-        heart.className = "heart";
-        heart.innerHTML = "❤";
-        heart.style.left = Math.random() * 100 + "vw";
-        heart.style.fontSize = (Math.random() * 10 + 10) + "px";
-        document.body.appendChild(heart);
-
-        setTimeout(() => heart.remove(), 6000);
-    }, 400);
-}
-
-botao.onclick = () => {
+botao.addEventListener("click", () => {
     fade.style.opacity = 1;
 
     setTimeout(() => {
         window.location.href = "https://wa.me/5542998759922?text=Eu quero continuar isso com você 💙";
     }, 2000);
-};
+});
 </script>
 
 </body>
