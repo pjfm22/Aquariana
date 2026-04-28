@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Carta Especial</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    background: radial-gradient(circle at center, #020617, #000);
+    color: white;
+}
+
+/* estrelas animadas */
+.stars {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: url("https://www.transparenttextures.com/patterns/stardust.png");
+    animation: moveStars 60s linear infinite;
+    opacity: 0.25;
+}
+
+@keyframes moveStars {
+    from { transform: translate(0,0); }
+    to { transform: translate(-500px,-500px); }
+}
+
+/* corações */
+.heart {
+    position: absolute;
+    color: #38bdf8;
+    animation: floatUp 6s linear infinite;
+    opacity: 0.3;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh); opacity: 0; }
+    50% { opacity: 0.4; }
+    100% { transform: translateY(-10vh); opacity: 0; }
+}
+
+/* carta */
+.carta {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 180px;
+    background: #f8fafc;
+    color: #111;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    z-index: 2;
+}
+
+.abrindo {
+    animation: abrir 1.2s forwards;
+}
+
+@keyframes abrir {
+    to { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+
+/* conteúdo */
+.conteudo {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420px;
+    background: rgba(2,6,23,0.9);
+    padding: 25px;
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    z-index: 3;
+}
+
+#texto {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+/* cursor piscando */
+.cursor {
+    display: inline-block;
+    width: 8px;
+    background: white;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* botão */
+.botao {
+    margin-top: 20px;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background: #38bdf8;
+    color: #020617;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+/* fade final */
+.fade {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: black;
+    opacity: 0;
+    transition: 2s;
+    z-index: 10;
+}
+</style>
+</head>
+
+<body>
+
+<div class="stars"></div>
+
+<div class="carta" id="carta">Abrir Carta 💌</div>
+
+<div class="conteudo" id="conteudo">
+    <div id="texto"></div>
+    <span class="cursor"></span>
+    <button class="botao" id="botao">Quero continuar isso com você</button>
+</div>
+
+<div class="fade" id="fade"></div>
+
+<audio id="musica" src="Ainda Flui.mp3"></audio>
+
+<script>
+const carta = document.getElementById("carta");
+const conteudo = document.getElementById("conteudo");
+const textoEl = document.getElementById("texto");
+const musica = document.getElementById("musica");
+const botao = document.getElementById("botao");
+const fade = document.getElementById("fade");
+
+const mensagem = `Em poucos dias, a gente criou algo raro — e o mais bonito é sentir que isso ainda tá só começando.
+Com muito carinho, P.S: fica até a música acabar`;
+
+carta.onclick = () => {
+    let senha = prompt("Digite a senha:");
+
+    if (senha === "Aquariana") {
+        carta.classList.add("abrindo");
+
+        setTimeout(() => {
+            carta.style.display = "none";
+            conteudo.style.display = "block";
+
+            tocarMusica();
+            digitar(mensagem);
+            gerarCoracoes();
+        }, 1200);
+    }
+};
+
+function tocarMusica() {
+    musica.volume = 0;
+    musica.play();
+
+    let vol = 0;
+    let fadeIn = setInterval(() => {
+        if (vol < 1) {
+            vol += 0.05;
+            musica.volume = vol;
+        } else {
+            clearInterval(fadeIn);
+        }
+    }, 200);
+}
+
+function digitar(texto) {
+    let i = 0;
+
+    function escrever() {
+        if (i < texto.length) {
+            textoEl.innerHTML += texto[i];
+            i++;
+
+            let delay = 40;
+
+            if (texto[i] === "." || texto[i] === ",") delay = 200;
+
+            setTimeout(escrever, delay);
+        } else {
+            botao.style.display = "block";
+        }
+    }
+
+    escrever();
+}
+
+function gerarCoracoes() {
+    setInterval(() => {
+        let heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerHTML = "❤";
+        heart.style.left = Math.random() * 100 + "vw";
+        heart.style.fontSize = (Math.random() * 10 + 10) + "px";
+        document.body.appendChild(heart);
+
+        setTimeout(() => heart.remove(), 6000);
+    }, 400);
+}
+
+botao.onclick = () => {
+    fade.style.opacity = 1;
+
+    setTimeout(() => {
+        window.location.href = "https://wa.me/5542998759922?text=Eu quero continuar isso com você 💙";
+    }, 2000);
+};
+</script>
+
+</body>
+</html>
