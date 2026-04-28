@@ -9,30 +9,13 @@
 body {
     margin: 0;
     height: 100vh;
-    font-family: 'Courier New', monospace;
-    background: radial-gradient(circle at center, #020617, #000);
-    color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
-}
-
-/* estrelas */
-.stars {
-    position: fixed;
-    width: 200%;
-    height: 200%;
-    background: url("https://www.transparenttextures.com/patterns/stardust.png");
-    animation: moveStars 60s linear infinite;
-    opacity: 0.25;
-    pointer-events: none;
-}
-
-@keyframes moveStars {
-    from { transform: translate(0,0); }
-    to { transform: translate(-500px,-500px); }
+    background: linear-gradient(135deg, #020617, #0f172a);
+    font-family: Arial, sans-serif;
+    color: white;
 }
 
 /* carta */
@@ -46,57 +29,30 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
     margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* botão abrir com brilho */
-.abrir-btn {
-    position: relative;
-    padding: 12px 25px;
+/* botão */
+button {
+    padding: 14px 22px;
     border: none;
     border-radius: 25px;
     background: #38bdf8;
     color: #020617;
     font-weight: bold;
-    cursor: pointer;
-    overflow: hidden;
-}
-
-.abrir-btn::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.6), transparent);
-    transition: 0.5s;
-}
-
-.abrir-btn:hover::after {
-    left: 100%;
+    font-size: 15px;
 }
 
 /* conteúdo */
-.conteudo {
+#conteudo {
     display: none;
-    opacity: 0;
-    transform: translateY(20px);
     width: 90%;
-    max-width: 420px;
-    background: rgba(2,6,23,0.95);
+    max-width: 400px;
+    background: rgba(0,0,0,0.7);
     padding: 20px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    transition: 1s;
-}
-
-.conteudo.show {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
+    border-radius: 12px;
+    margin-top: 20px;
 }
 
 #texto {
@@ -105,130 +61,71 @@ body {
 }
 
 /* botão final */
-.botao {
-    margin-top: 20px;
-    padding: 12px;
-    border-radius: 25px;
-    border: none;
-    background: #38bdf8;
-    color: #020617;
-    font-weight: bold;
+#finalBtn {
     display: none;
+    margin-top: 20px;
     width: 100%;
-}
-
-/* fade */
-.fade {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: black;
-    opacity: 0;
-    transition: 2s;
 }
 </style>
 </head>
 
 <body>
 
-<div class="stars"></div>
-
 <div class="carta">💌 Carta Especial</div>
 
-<button class="abrir-btn" id="abrirBtn">Abrir Carta</button>
+<button id="abrir">Abrir Carta</button>
 
-<div class="conteudo" id="conteudo">
+<div id="conteudo">
     <div id="texto"></div>
-    <button class="botao" id="botao">Quero continuar isso com você</button>
+    <button id="finalBtn">Quero continuar isso com você</button>
 </div>
 
-<div class="fade" id="fade"></div>
-
-<!-- música principal -->
 <audio id="musica" src="Ainda Flui.mp3"></audio>
 
-<!-- som de abrir carta (opcional, pode trocar depois) -->
-<audio id="somAbrir" src="https://www.soundjay.com/misc/sounds/page-flip-01a.mp3"></audio>
-
 <script>
-const abrirBtn = document.getElementById("abrirBtn");
+const abrir = document.getElementById("abrir");
 const conteudo = document.getElementById("conteudo");
-const textoEl = document.getElementById("texto");
+const texto = document.getElementById("texto");
 const musica = document.getElementById("musica");
-const botao = document.getElementById("botao");
-const fade = document.getElementById("fade");
-const somAbrir = document.getElementById("somAbrir");
+const finalBtn = document.getElementById("finalBtn");
 
 const mensagem = `Em poucos dias, a gente criou algo raro — e o mais bonito é sentir que isso ainda tá só começando.
 Com muito carinho, P.S: fica até a música acabar`;
 
-abrirBtn.addEventListener("click", () => {
-
-    // vibração (se suportar)
-    if (navigator.vibrate) navigator.vibrate(50);
-
+abrir.onclick = function() {
     let senha = prompt("Digite a senha:");
 
     if (senha === "Aquariana") {
-
-        abrirBtn.style.display = "none";
+        abrir.style.display = "none";
         document.querySelector(".carta").style.display = "none";
+        conteudo.style.display = "block";
 
-        somAbrir.play();
-
-        setTimeout(() => {
-            conteudo.classList.add("show");
-            tocarMusica();
-            digitar(mensagem);
-        }, 500);
-
+        musica.play();
+        digitarTexto();
     } else {
         alert("Senha incorreta 💔");
     }
-});
+};
 
-function tocarMusica() {
-    musica.volume = 0;
-    musica.play();
-
-    let vol = 0;
-    let fadeIn = setInterval(() => {
-        if (vol < 1) {
-            vol += 0.05;
-            musica.volume = vol;
-        } else {
-            clearInterval(fadeIn);
-        }
-    }, 200);
-}
-
-function digitar(texto) {
+function digitarTexto() {
     let i = 0;
 
     function escrever() {
-        if (i < texto.length) {
-            textoEl.innerHTML += texto[i];
+        if (i < mensagem.length) {
+            texto.innerHTML += mensagem[i];
             i++;
-
-            let delay = 40;
-            if (texto[i] === "." || texto[i] === ",") delay = 200;
-
-            setTimeout(escrever, delay);
+            setTimeout(escrever, 50);
         } else {
-            botao.style.display = "block";
+            finalBtn.style.display = "block";
         }
     }
 
     escrever();
 }
 
-botao.addEventListener("click", () => {
-    fade.style.opacity = 1;
-
-    setTimeout(() => {
-        window.location.href = "https://wa.me/5542998759922?text=Eu quero continuar isso com você 💙";
-    }, 2000);
-});
+finalBtn.onclick = function() {
+    window.location.href = "https://wa.me/5542998759922?text=Eu quero continuar isso com você 💙";
+};
 </script>
 
 </body>
